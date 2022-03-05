@@ -13,6 +13,13 @@ class Error:
 		self.details = details
 
 	def as_string(self):
+		result = f'{self.error_name}: {self.details}'
+		return result
+
+class IllegalCharError(Error):
+	def __init__(self, details):
+		super.__init__('Illegal Character', details)
+		
 
 ############################
 # TOKENS (IMPORTANT)            
@@ -37,9 +44,9 @@ class Token:
 		if self.value: return f'{self.type}:{self.type}'
 		return f'{self.type}'
 
-#######################
-# LEXER               #
-#######################
+############################
+# LEXER (IMPORTANT)
+############################
 
 class Lexer:
 	def __init__(self, text):
@@ -50,7 +57,7 @@ class Lexer:
 
 	def advance(self):
 		self.pos += 1
-		self.current_char = self.text[pos] if self.pos < len(self.text) else None
+		self.current_char = self.text[self.pos] if self.pos < len(self.text) else None
 
 	def make_tokens(self):
 		tokens = []
@@ -79,8 +86,11 @@ class Lexer:
 				tokens.append(Token(TT_RPAREN))
 				self.advance()
 			else:
-
-		return tokens
+				# return some shitty error that you cant fix
+				char = self.current_char
+				self.advance()
+				return [], IllegalCharError("'" + char + "'")
+		return tokens, None
 
 	def make_number():
 		num_str = ''
@@ -97,3 +107,13 @@ class Lexer:
 			return Token(TT_INT, int(num_str))
 		else:
 			return Token(TT_FLOAT, float(num_str))
+
+############################
+# RUN (IMPORTANT)
+############################
+
+def run(text):
+	lexer = Lexer(text)
+	tokens, error = lexer.make_tokens()
+
+	return tokens, error
